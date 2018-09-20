@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic; 
+using System;
 
 namespace Practice1.Model {
     
@@ -11,11 +12,11 @@ namespace Practice1.Model {
         public DbSet<Actor> Actors {get; set;}
 
         // Implementing the mapping rules by using the OnModelCreating(ModelBuilder modelBuilder) method, with the intention of establishing a Many-to-Many relationship.
-            protected override void OnModelCreating(ModelBuilder modelBuilder) {
-                modelBuilder.Entity<MovieActor>().HasKey( k => new {k.ActorId, k.MovieId } ); // establishing Keys from the two entities.
-                modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie ).WithMany( a => a.Actors).HasForeignKey( m => m.MovieId); // One movie has many actors with foreign key from Movie (MovieId)
-                modelBuilder.Entity<MovieActor>().HasOne( a => a.Actor ).WithMany( m => m.Movies).HasForeignKey( a => a.ActorId); // One actor has many movies with foreign key from Actor (ActorId)
-            }
+            // protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            //     modelBuilder.Entity<MovieActor>().HasKey( k => new {k.ActorId, k.MovieId } ); // establishing Keys from the two entities.
+            //     modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie ).WithMany( a => a.Actors).HasForeignKey( m => m.MovieId); // One movie has many actors with foreign key from Movie (MovieId)
+            //     modelBuilder.Entity<MovieActor>().HasOne( a => a.Actor ).WithMany( m => m.Movies).HasForeignKey( a => a.ActorId); // One actor has many movies with foreign key from Actor (ActorId)
+            // }
 
         // Implementing One-to-One relationship. (One movie with one actor.)
             // protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -23,9 +24,9 @@ namespace Practice1.Model {
             // }
 
         // Implementing One-to-Many relationship. (One movie with many actors.)
-        //     protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        //         modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie).WithMany(a => a.Actors);
-        //     }
+            // protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            //     modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie).WithMany(a => a.Actors).HasForeignKey(m => m.MovieId);
+            // }
 
         // establishing a connection with our specific database
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
@@ -47,8 +48,8 @@ namespace Practice1.Model {
             public int Id {get; set;}
             public string Title {get; set;}
             public string ReleaseYear {get; set;}
-            public virtual List<MovieActor> Actors {get; set;} // We add this so we can accomodate the Many-to-Many intention.
-            // public Actor Actor {get; set;} // We add this attribute when we want to establish an One-to-Many and One-to-One relationships.
+            public virtual List<Actor> Actors {get; set;} // We add this so we can accomodate the Many-to-Many intention.
+            public Actor Actor {get; set;} // We add this attribute when we want to establish an One-to-Many and One-to-One relationships.
         }
 
         // creating the Actor class which is also an entity.
@@ -56,9 +57,12 @@ namespace Practice1.Model {
             // defining the attributes of the entity.
             public int Id {get; set;}
             public string Name {get; set;}
+            public string Gender {get; set;}
             public string Birthdate {get; set;}
-            public virtual List<MovieActor> Movies {get; set;} // We add this so we can accomodate the Many-to-Many intention.
-            // public Movie Movie {get; set;} // We add this attribute when we want to establish an One-to-Many and One-to-One relationships.
+
+            // public virtual List<MovieActor> Movies {get; set;} // We add this so we can accomodate the Many-to-Many intention.
+            public Movie Movie {get; set;} // We add this attribute when we want to establish an One-to-Many and One-to-One relationships.
+            public int MovieId {get; set;}
         }
 
     }
