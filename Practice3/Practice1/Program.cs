@@ -58,7 +58,7 @@ namespace Practice1
         }
 
         // PROJECTION
-        static void GetMovies() { // For this method, we want to show only the movies, so we need to use a Projection here (select keyword.)
+        static void GetMovies() { // For this method, we want to only show the movies, so we need to use a Projection here (select keyword.)
             using (var _context = new MovieContext()) {
                 var results = from m in _context.Movies
                             select m;
@@ -70,7 +70,7 @@ namespace Practice1
             }   
         }
 
-        static void GetActors() { // For this method, we want to show only the actors, so we need to use a Projection here (select keyword.)
+        static void GetActors() { // For this method, we want to only show the actors, so we need to use a Projection here (select keyword.)
             using (var _context = new MovieContext()) {
                 var results = from a in _context.Actors
                             select a;
