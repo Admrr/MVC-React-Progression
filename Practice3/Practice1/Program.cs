@@ -100,7 +100,7 @@ namespace Practice1
 
         // SUBQUERY AND AGGREGATION
 
-        static void CountMovieActors() { // For this method, we will use Projection, Join and Aggregation all in one with the help of a subquery and a query. We will show the number of actors in a movie.
+        static void CountMovieActors() { // For this method, we will use Projection, Filter, Join and Aggregation all in one with the help of a subquery and a query. We will show the number of actors in a movie.
             using(var _context = new MovieContext()) {
                 var subquery = from m in _context.Movies // Subquery
                                 join a in _context.Actors on m.Id equals a.MovieId into Actor // The "on" keyword correlates the attributes of 2 entities in our case, so we will correlate the 2 ID keys (which are our primary keys here.)
