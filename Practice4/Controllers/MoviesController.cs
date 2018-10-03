@@ -35,7 +35,7 @@ namespace Practice4.Controllers
 
         // GET api/values/5
         [HttpGet("GetMovies/{id}")]
-        public IQueryable GetMovies(int id)
+        public IQueryable<Movie> GetMovies(int id)
         {
             var result = from m in this._context.Movies
                          where m.Id == id
