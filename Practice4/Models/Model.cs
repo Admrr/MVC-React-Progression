@@ -7,6 +7,7 @@ namespace Practice4.Model {
     // creating the context.
     public class MovieContext: DbContext {
 
+        public MovieContext () {}
         // The line below is needed to reference to the options from the Startup.cs file, so we can establish a connection to the database and reference it from the model.cs file.
         public MovieContext (DbContextOptions<MovieContext> options) : base (options) {} // "base" inherits the constructor of the class, so in this case it references to the DbContext class.
         // assigns the entity to a method, so the developer can easily use this to reference it.
