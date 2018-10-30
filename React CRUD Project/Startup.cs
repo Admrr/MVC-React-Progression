@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using ReactProject.Model;
 
 namespace ReactProject
 {
@@ -23,6 +25,7 @@ namespace ReactProject
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddDbContext<DBContext>(optionsBuilder => optionsBuilder.UseNpgsql("User ID=postgres;Password=;Host=localhost;Port=5432;Database=ReactProject;Pooling=true;"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
