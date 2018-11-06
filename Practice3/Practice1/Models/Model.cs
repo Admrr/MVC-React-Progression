@@ -14,8 +14,8 @@ namespace Practice1.Model {
         // Implementing the mapping rules by using the OnModelCreating(ModelBuilder modelBuilder) method, with the intention of establishing a Many-to-Many relationship.
             // protected override void OnModelCreating(ModelBuilder modelBuilder) {
             //     modelBuilder.Entity<MovieActor>().HasKey( k => new {k.ActorId, k.MovieId } ); // establishing Keys from the two entities.
-            //     modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie ).WithMany( a => a.Actors).HasForeignKey( m => m.MovieId); // One movie has many actors with foreign key from Movie (MovieId)
-            //     modelBuilder.Entity<MovieActor>().HasOne( a => a.Actor ).WithMany( m => m.Movies).HasForeignKey( a => a.ActorId); // One actor has many movies with foreign key from Actor (ActorId)
+            //     modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie ).WithMany( a => a.MovieActor).HasForeignKey( m => m.MovieId); // One movie has many actors with foreign key from Movie (MovieId)
+            //     modelBuilder.Entity<MovieActor>().HasOne( a => a.Actor ).WithMany( m => m.MovieActor).HasForeignKey( a => a.ActorId); // One actor has many movies with foreign key from Actor (ActorId)
             // }
 
         // Implementing One-to-One relationship. (One movie with one actor.)
