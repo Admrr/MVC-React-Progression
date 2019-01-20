@@ -142,7 +142,7 @@ namespace Practice1
         static void GetAllResults() { // For this method, we want to show all the results in our database, so we need to use a Join here (join keyword).
             using (var _context = new MovieContext()) {
                 var results = from m in _context.Movies
-                            join a in _context.Actors on m.Id equals a.MovieId // Explicit Joining: This way of joining the tables is very good for our performance, since it will only load the movies table for now. It will only load in the necessary results from the actor table.
+                            join a in _context.Actors on m.Id equals a.MovieId 
                             select new {
                                 Title = m.Title, ReleaseYear = m.ReleaseYear, Actor = a.Name, Birthdate = a.Birthdate, Gender = a.Gender
                             };

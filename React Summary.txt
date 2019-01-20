@@ -1,0 +1,240 @@
+// Summary of React + TS for my upcoming exam.
+
+// MODEL
+
+    // Adding a DbSet<NewEntity>, so that you can actually reference/use the entity in the controller.
+
+        public DbSet<Actor> Actors {get; set;}
+
+    // If it is a Many-to-Many entity, you will need to add that as well.
+
+        public DbSet<MovieActor> MovieActors {get; set;}
+
+    // One-to-One
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie).WithOne( a => a.Actors).HasForeignKey( a => a.ActorId);
+        }
+
+    // One-to-Many
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie).WithMany(a => a.Actors).HasForeignKey(m => m.MovieId);
+        }   
+
+    // Many-to-Many relationship.
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            modelBuilder.Entity<MovieActor>().HasKey( k => new {k.ActorId, k.MovieId } ); // establishing Keys from the two entities, important (DON'T FORGET ASSIGNING KEYS IN MANY-TO-MANY)
+            modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie ).WithMany( a => a.Actors).HasForeignKey( m => m.MovieId); // One movie has many actors with foreign key from Movie (MovieId)
+            modelBuilder.Entity<MovieActor>().HasOne( a => a.Actor ).WithMany( m => m.Movies).HasForeignKey( a => a.ActorId); // One actor has many movies with foreign key from Actor (ActorId)
+        }
+
+    // Class structure of entities
+
+    // One-to-One or One-to-Many
+
+        public class Actor { // Defining the attributes of the entity after naming the class.
+            public int Id {get; set;} // Each entity always has this.
+            public string Name {get; set;}
+            public string Gender {get; set;}
+            public string Birthdate {get; set;}
+            // public List<MovieActor> Movies {get; set;} // We add this so we can accomodate the Many-to-Many and One-to-Many intention.
+            // public Movie Movie {get; set;} // We add this attribute when we want to establish an One-to-Many and One-to-One relationships.
+            // public int MovieId {get; set;} // And the attributes we want to use.
+        }
+
+    // Many-to-Many
+    // You add a class where you combine the two entities, in this case; Movies and Actors.
+    // Don't forget to pass this attribute (adjusted accordingly) to the entity classes: public List<MovieActor> Movies {get; set;} in Actor and: public List<MovieActor> Actors {get; set;} in Movie (for this example in particular).
+
+        public class MovieActor { 
+            public int MovieId {get; set;}
+            public Movie Movie {get; set;}
+            public int ActorId {get; set;}
+            public Actor Actor {get; set;}
+        }
+
+// CONTROLLER
+
+    // Always have a constructor for your context.
+    
+        MovieContext _context;
+
+        public MoviesController(MovieContext context)
+        {
+            this._context = context;
+        }
+
+    // HTTP operations w/ examples.
+
+        [HttpGet("GetMovies")],
+        [HttpGet("GetMovies/{id}")] // id here is an attribute that you pass as an parameter to the function.
+        [HttpPost("InsertMovie/{id}")], 
+        [HttpPut("EditMovie/{id}")], 
+        [HttpDelete("DeleteMovie/{id}")]
+
+    // LINQ queries
+
+    // SELECT * FROM Movies WHERE movies.Id == id, so we compare the id that we pass through the parameter with the Id in the Movies entity
+
+        public IActionResult GetMovies(int id)
+            {
+                var result = from m in this._context.Movies
+                            where m.Id == id
+                            select m;
+
+                return result;
+            }
+
+    // Adding information to the context with the POST method.
+
+        [HttpPost("MakeBook")]
+        public IActionResult MakeBook(Book book){
+            if( _context.Books.FirstOrDefault(b => b.Id == book.Id) == null ){ // This is important; We need to check if we are not adding something that already exists in the context.
+                _context.Books.Add(book);
+                _context.SaveChanges();
+                return Ok();
+            }   
+        return Unauthorized();
+        }
+
+    // Deleting information from the context with the POST method.
+
+        [HttpPost("DeleteBook")]
+        public IActionResult DeleteBook(Book book){
+            if( _context.Books.FirstOrDefault(b => b.Id == book.Id) != null ){ // This time we check if the boolean is not null (We check if it actually has information) and then delete it from the context.
+                _context.Books.Remove(book);
+                _context.SaveChanges();
+                return Ok();
+            }
+        return Unauthorized();
+        }
+
+    // JOIN with another class.
+
+        [HttpGet("GetAuthorsAndBooks")]
+        public IActionResult GetAuthorsAndBooks(){
+
+        // 1. We use the Author entity first. (Reasoning is that we return the Author first and then the subsequent Books that the Author wrote in our program).
+        // 2. The program suggest that we need to use the AuthorBooks class (variable name is authorsAndBooks, so that gives us a hint).
+        // 3. We assign the variables to the respective entities.
+        // 4. We join BookAuthor and Books, so we can compare the Id's in BookAuthor with the Id's of the Author and Book classes (WHERE Bookauthor AuthorId/BookID == Books.Id/Author.Id).
+        // 5. We SELECT b (Books) since we want to return that.
+        // 6. Use .ToList(); to return the results of the LINQ Query as an list.
+      
+        List<AuthorBooks> authorsAndBooks = (from a in _context.Authors 
+                                            select new AuthorBooks() { 
+                                              Author = a, Books = (from ab in _context.BookAuthor 
+                                                                  from b in _context.Books 
+                                                                  where ab.AuthorId == a.Id && ab.BookId == b.Id 
+                                                                  select b)} 
+                                            ).ToList();
+        return Ok(authorsAndBooks);
+        }
+
+        public class AuthorBooks{
+            public Author Author {get;set;}
+            public List<Book> Books {get;set;}
+        }
+
+    // Another JOIN
+    // JOIN <variable> IN <entity> ON <attribute> EQUALS <attribute to compare to> 
+
+        var results = from m in _context.Movies
+                            join a in _context.Actors on m.Id equals a.MovieId 
+                            select new {
+                                Title = m.Title, ReleaseYear = m.ReleaseYear, Actor = a.Name, Birthdate = a.Birthdate, Gender = a.Gender
+                            };
+
+    // JOIN with SUBQUERY
+    // JOIN <variable> IN <entity> ON <attribute> EQUALS <attribute to compare to> INTO <variable for <entity>>
+    // If we don't use the INTO keyword here, we can't use the Count() method on our actors.
+    
+        var subquery = from m in _context.Movies 
+                                join a in _context.Actors on m.Id equals a.MovieId into Actor 
+                                select new {                                                      
+                                    Title = m.Title,
+                                    ActorNumber = Actor.Count()
+                                };
+                
+                var results = from m in subquery // Query
+                            where m.ActorNumber > 1
+                            select m;
+
+
+// VIEW
+
+    // React Components
+
+    // API CALL
+
+    // 1. async function <functionname> : Promise<Models.<Model.<Entity[]>
+    // 2. let <variable1> = await fetch('<path-to-controller-method>', { method: '<HttpCall>', credentials: 'include', headers: {'content-type': 'applicaton/json'}});
+    // 3. let <variable2> = await <variable1>.json();
+    // 4. return <variable2>
+
+        async function getAllAuthorsAndBooks(): Promise<Models.AuthorBooks[]> { 
+        let header = { method: 'get', credentials: 'include', headers: { 'content-type': 'application/json' } }
+        let res = await fetch('/api/Library/GetAuthorsAndBooks/', header)
+        let _res = await res.json();
+        return _res
+        }
+
+    // MODELS.TS (You look at your Models.cs file and translate all the entities to TypeScript)
+
+    // Writer = Author class in Models.cs
+    // Book = Book class in Models.cs
+    // AuthorBooks = AuthorBooks class in Models.cs
+
+        export type Writer = {
+        name:string,
+        gender:string,
+        birth:Date
+        id:number
+        }
+
+        export type Book = {
+        id:number, 
+        title:string, 
+        year:Date
+        }
+
+        export type AuthorBooks = {
+        author:Writer,
+        books:Book[]
+        }
+
+    // ROUTES.TSX
+    // Routing the Components
+
+        import { FetchData } from './components/FetchData';
+        import { Counter } from './components/Counter';
+
+        <Route path='/counter' component={ Counter } />
+        <Route path='/fetchdata' component={ FetchData } />
+
+    // VIEWS -> HOME -> INDEX.CSHTML
+
+        <div id="react-app">Loading...</div>
+
+    // COMPONENTWILLMOUNT()
+    // We use the API CALL and try to mount it to the Components
+
+    // 1. this.setState({...this.state, <state-you-want-to-use>: {<attributes>}}, () => )
+    // 2. () => <function name of API CALL>()
+    // 3. .then(<lambda> => this.setState({ ...this.state, <state-you-want-to-use>: {<attributes>} }))
+    // 4. .catch(<lambda> => { console.error(<lambda>), this.setState({ ...this.state, <state-you-want-to-use>: {<attributes>} })
+
+
+        try_download_allAuthorsAndBooks() {
+        this.setState({ ...this.state, AuthorsAndBooks: {kind:"loading"} }, 
+        () => getAllAuthorsAndBooks()
+        .then(result => this.setState({ ...this.state, AuthorsAndBooks: {kind:"value", value:result} }))
+        .catch(e => { console.error(e), this.setState({ ...this.state, AuthorsAndBooks: {kind:"error"} })
+            })) 
+        }
+
+        componentWillMount() {
+        this.try_download_allAuthorsAndBooks()
+        }

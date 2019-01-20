@@ -54,7 +54,7 @@ namespace Practice4.Controllers
                 return BadRequest("Not a valid model.");
             }
 
-            var temp = _context.Movies.Find(id);
+            var temp = _context.Movies.FirstOrDefault(p => p.Id == id );
             if (temp == null)
             {
                 return NotFound();
