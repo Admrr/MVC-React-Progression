@@ -13,13 +13,13 @@
     // One-to-One
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie).WithOne( a => a.Actors).HasForeignKey( a => a.ActorId);
+            modelBuilder.Entity<Movie>().HasOne( m => m.Movie).WithOne(a => a.Actors).HasForeignKey( m => m.Id);
         }
 
     // One-to-Many
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            modelBuilder.Entity<MovieActor>().HasOne( m => m.Movie).WithMany(a => a.Actors).HasForeignKey(m => m.MovieId);
+            modelBuilder.Entity<Movie>().HasOne( m => m.Movie).WithMany(a => a.Actors).HasForeignKey(m => m.Id);
         }   
 
     // Many-to-Many relationship.
