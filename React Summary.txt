@@ -100,7 +100,7 @@
         }
 
     // Deleting information from the context with the POST method.
-
+ 
         [HttpPost("DeleteBook")]
         public IActionResult DeleteBook(Book book){
             if( _context.Books.FirstOrDefault(b => b.Id == book.Id) != null ){ // This time we check if the boolean is not null (We check if it actually has information) and then delete it from the context.
@@ -223,8 +223,9 @@
 
     // 1. this.setState({...this.state, <state-you-want-to-use>: {<attributes>}}, () => )
     // 2. () => <function name of API CALL>()
-    // 3. .then(<lambda> => this.setState({ ...this.state, <state-you-want-to-use>: {<attributes>} }))
+    // 3. .then(<lambda> => this.setState({ ...this.state, <state-you-want-to-use>: {<attribute>, <attribute>:<lambda>} }))
     // 4. .catch(<lambda> => { console.error(<lambda>), this.setState({ ...this.state, <state-you-want-to-use>: {<attributes>} })
+    // (Note: .then & .catch make use of LAMBDA'S!!!
 
 
         try_download_allAuthorsAndBooks() {
